@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "title": "Neon City",
+    "category": "Cyberpunk",
+    "filename": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=2070&auto=format&fit=crop",
+    "description": "A vibrant neon cityscape at night."
+  },
+  {
+    "id": "2",
+    "title": "Abstract Glass",
+    "category": "Abstract",
+    "filename": "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
+    "description": "Geometric glass shapes with light refraction."
+  },
+  {
+    "id": "3",
+    "title": "Digital Rain",
+    "category": "Sci-Fi",
+    "filename": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
+    "description": "Matrix-style digital rain code."
+  },
+  {
+    "id": "4",
+    "title": "Minimalist Mountains",
+    "category": "Minimalist",
+    "filename": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop",
+    "description": "Clean lines forming a mountain range."
+  },
+  {
+    "id": "5",
+    "title": "Retro Wave Grid",
+    "category": "Synthwave",
+    "filename": "https://images.unsplash.com/photo-1535498730771-e735b998cd64?q=80&w=1887&auto=format&fit=crop",
+    "description": "80s style retro wave grid landscape."
+  }
+]

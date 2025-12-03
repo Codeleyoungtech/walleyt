@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Walleyt - Cyberpunk Wallpapers</title>
+    <!-- The original code had an incomplete <meta tag here. It should be a complete tag. -->
+    <meta
+      name="description"
+      content="Cyberpunk Wallpapers for your desktop and mobile devices."
+    />
+  </head>
+  <body>
+    <!-- The original code had </main> here, but no opening <main> tag.
+         Assuming the main content was intended to be before the navigation.
+         If there's no main content, this tag should be removed.
+         For now, I'll add an empty main tag to make the structure valid. -->
+    <main>
+      <!-- Your main content would go here -->
+    </main>
+
+    <!-- Floating Dock Navigation -->
+    <nav class="dock-container">
+      <a href="#" class="dock-item active" title="Home">
+        <i class="fas fa-home"></i>
+      </a>
+      <a href="#" class="dock-item" title="Trending">
+        <i class="fas fa-fire"></i>
+      </a>
+      <a href="#" class="dock-item" title="Categories">
+        <i class="fas fa-layer-group"></i>
+      </a>
+      <a href="admin-helper.html" class="dock-item" title="Upload">
+        <i class="fas fa-plus"></i>
+      </a>
+    </nav>
+
+    <!-- Fullscreen Modal -->
+    <div id="modal" class="modal">
+      <button id="closeModal" class="close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="modal-content">
+        <img id="modalImage" class="modal-image" src="" alt="" />
+        <div class="modal-info">
+          <h2 id="modalTitle" class="modal-title">Wallpaper Title</h2>
+          <p id="modalDesc" class="modal-desc">Description goes here</p>
+          <div class="modal-actions">
+            <a
+              id="downloadBtn"
+              href="#"
+              class="btn btn-primary"
+              download
+              target="_blank"
+            >
+              <i class="fas fa-download"></i> Download
+            </a>
+            <button id="shareBtn" class="btn btn-secondary">
+              <i class="fas fa-share-alt"></i> Share
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
