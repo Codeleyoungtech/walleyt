@@ -123,35 +123,6 @@ export function WallpaperCard(wallpaper) {
         Toast.show(
           newStatus ? "Added to Walle ❤️" : "Removed from Walle",
           "success"
-        );
-        // Refresh card to update walle indicator
-        const newCard = WallpaperCard(wallpaper);
-        card.replaceWith(newCard);
-      },
-      share: () => {
-        // Update meta tags for this wallpaper
-        updateWallpaperMeta(wallpaper);
-
-        const shareUrl = getShareableURL(wallpaper.id);
-        const shareData = {
-          title: `${wallpaper.title} - Walleyt`,
-          text: `Check out this ${wallpaper.category} wallpaper in ${
-            wallpaper.resolution || "HD"
-          } quality!`,
-          url: shareUrl,
-        };
-
-        if (navigator.share) {
-          navigator.share(shareData).catch(console.error);
-        } else {
-          navigator.clipboard.writeText(shareUrl);
-          Toast.show("Link copied! Share it to see preview 🔗", "success");
-        }
-      },
-      info: () => {
-        router.navigate("details", { id: wallpaper.id });
-      },
-    });
   };
 
   // Navigate to details on image click
