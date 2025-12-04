@@ -187,7 +187,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-      const API_URL = "http://localhost:3000/api/analytics";
+      // Use current host for API URL (works for both localhost and production)
+      const API_URL = window.location.origin + "/api/analytics";
 
       let visitorChart = null;
       let categoryChart = null;

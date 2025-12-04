@@ -305,7 +305,8 @@
     </div>
 
     <script>
-      const API_URL = "http://localhost:3000/api";
+      // Use current host for API URL (works for both localhost and production)
+      const API_URL = window.location.origin + "/api";
       let selectedFile = null;
       let existingCategories = [];
 
