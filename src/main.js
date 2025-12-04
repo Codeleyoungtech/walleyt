@@ -1,103 +1,67 @@
-import "./style.css";
+import "./styles/main.css";
+import "./styles/components.css";
+import "./styles/animations.css";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const gallery = document.getElementById("gallery");
-  const modal = document.getElementById("modal");
-  const modalImage = document.getElementById("modalImage");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDesc = document.getElementById("modalDesc");
-  const downloadBtn = document.getElementById("downloadBtn");
-  const shareBtn = document.getElementById("shareBtn");
-  const closeModal = document.getElementById("closeModal");
+import { state } from "./state.js";
+import { router } from "./router.js";
+import { BottomNav } from "./components/BottomNav.js";
+import { analytics } from "./utils/analytics.js";
 
-  // Fetch Wallpapers
-  fetch("wallpapers.json")
-    .then((response) => response.json())
-    .then((data) => {
-      renderGallery(data);
-    })
-    .catch((error) => console.error("Error fetching wallpapers:", error));
+// Pages
+import { Home } from "./pages/Home.js";
+import { Collections } from "./pages/Collections.js";
+import { CollectionDetails } from "./pages/CollectionDetails.js";
+import { Walle } from "./pages/Walle.js";
+import { Details } from "./pages/Details.js";
+import { Profile } from "./pages/Profile.js";
 
-  function renderGallery(wallpapers) {
-    // Clear existing content (if any)
-    gallery.innerHTML = "";
+// App initialization
+async function initApp() {
+  const app = document.getElementById("app");
 
-    wallpapers.forEach((wallpaper) => {
-      const card = document.createElement("div");
-      card.className = "wallpaper-card";
-      card.onclick = () => openModal(wallpaper);
+  // Show loading state
+  app.innerHTML = `
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--text-primary);">
+      <div style="text-align: center;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+        <p>Loading wallpapers...</p>
+      </div>
+    </div>
+  `;
 
-      // Skeleton Loading
-      const skeleton = document.createElement("div");
-      skeleton.className = "skeleton";
-      card.appendChild(skeleton);
+  try {
+    // Initialize state (fetch from API)
+    await state.init();
 
-      const img = document.createElement("img");
-      img.dataset.src = wallpaper.filename; // Use data-src for lazy loading
-      img.alt = wallpaper.title;
-      img.style.display = "none"; // Hide initially
+    // Initialize analytics
+    await analytics.init();
 
-      // Lazy Loading Observer
-      const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const image = entry.target;
-            image.src = image.dataset.src;
-            image.onload = () => {
-              image.style.display = "block";
-              skeleton.remove(); // Remove skeleton when loaded
-            };
-            observer.unobserve(image);
-          }
-        });
-      });
-      observer.observe(img);
-
-      const overlay = document.createElement("div");
-      overlay.className = "card-overlay";
-      overlay.innerHTML = `<h3>${wallpaper.title}</h3><p>${wallpaper.category}</p>`;
-
-      card.appendChild(img);
-      card.appendChild(overlay);
-      gallery.appendChild(card);
+    // Initialize router with routes
+    router.init("app", {
+      home: Home,
+      collections: Collections,
+      "collection-details": CollectionDetails,
+      walle: Walle,
+      profile: Profile,
+      details: Details,
     });
+
+    // Initialize bottom navigation
+    BottomNav.init();
+
+    // Navigate to home or saved route
+    const path = window.location.hash.slice(1) || "home";
+    router.navigate(path);
+  } catch (error) {
+    console.error("Failed to init app:", error);
+    app.innerHTML =
+      '<div style="text-align: center; padding: 2rem;">Failed to load application.</div>';
   }
+}
 
-  // Modal Functions
-  function openModal(wallpaper) {
-    modalImage.src = wallpaper.filename;
-    modalTitle.textContent = wallpaper.title;
-    modalDesc.textContent = wallpaper.description;
-    downloadBtn.href = wallpaper.filename;
-
-    modal.classList.add("active");
-  }
-
-  closeModal.addEventListener("click", () => {
-    modal.classList.remove("active");
-  });
-
-  // Close modal when clicking outside
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.classList.remove("active");
-    }
-  });
-
-  // Share Functionality
-  shareBtn.addEventListener("click", async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: modalTitle.textContent,
-          text: modalDesc.textContent,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
-    } else {
-      alert("Web Share API not supported in this browser.");
-    }
-  });
-});
+// Start app when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}

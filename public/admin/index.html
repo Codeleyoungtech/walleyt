@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Walleyt Admin Panel</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .config-section {
+        background: #161b22;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #30363d;
+      }
+
+      .config-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: #58a6ff;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        color: white;
+        border-radius: 8px;
+        font-family: inherit;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #58a6ff;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #8b949e;
+        font-size: 0.9rem;
+      }
+
+      #drop-zone {
+        border: 2px dashed #30363d;
+        padding: 60px;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #161b22;
+      }
+
+      #drop-zone:hover,
+      #drop-zone.drag-over {
+        border-color: #58a6ff;
+        background: #1c2128;
+      }
+
+      #drop-zone i {
+        font-size: 3rem;
+        color: #58a6ff;
+        margin-bottom: 15px;
+      }
+
+      #preview-container {
+        display: none;
+        margin-top: 20px;
+      }
+
+      #preview-img {
+        max-width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      }
+
+      .btn-primary:disabled {
+        background: #30363d;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      #status {
+        text-align: center;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 8px;
+        display: none;
+      }
+
+      #status.success {
+        background: rgba(52, 199, 89, 0.1);
+        border: 1px solid #34c759;
+        color: #34c759;
+      }
+
+      #status.error {
+        background: rgba(255, 59, 48, 0.1);
+        border: 1px solid #ff3b30;
+        color: #ff3b30;
+      }
+
+      #status.info {
+        background: rgba(88, 166, 255, 0.1);
+        border: 1px solid #58a6ff;
+        color: #58a6ff;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>📸 Walleyt Admin Panel</h1>
+
+      <!-- Navigation -->
+      <div
+        style="
+          display: flex;
+          gap: 15px;
+          margin-bottom: 25px;
+          padding: 15px;
+          background: #161b22;
+          border-radius: 8px;
+          border: 1px solid #30363d;
+        "
+      >
+        <a
+          href="/admin/analytics.html"
+          style="color: #58a6ff; text-decoration: none; font-weight: 600"
+        >
+          <i class="fas fa-chart-line"></i> Analytics
+        </a>
+        <a
+          href="/admin/manage.html"
+          style="color: #58a6ff; text-decoration: none; font-weight: 600"
+        >
+          <i class="fas fa-cog"></i> Manage Wallpapers
+        </a>
+      </div>
+
+      <!-- GitHub Configuration -->
+      <div class="config-section">
+        <h2>🔐 Configuration</h2>
+        <label>GitHub Token</label>
+        <input
+          type="password"
+          id="github-token"
+          placeholder="ghp_your_token_here"
+        />
+
+        <label>GitHub Repo (username/repo-name)</label>
+        <input
+          type="text"
+          id="github-repo"
+          placeholder="username/wallpaper-images"
+        />
+      </div>
+
+      <!-- Upload Section -->
+      <div class="config-section">
+        <h2>📤 Upload Wallpaper</h2>
+
+        <div id="drop-zone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <h3>Drag & Drop Image Here</h3>
+          <p style="margin-top: 10px; color: #8b949e">or click to browse</p>
+          <input
+            type="file"
+            id="file-input"
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
+
+        <div id="preview-container">
+          <img id="preview-img" alt="Preview" />
+        </div>
+      </div>
+
+      <!-- Wallpaper Details Form -->
+      <div class="config-section">
+        <h2>📝 Wallpaper Details</h2>
+
+        <label>Title *</label>
+        <input
+          type="text"
+          id="title"
+          placeholder="e.g., Sunset Over Mountains"
+          required
+        />
+
+        <div class="form-row">
+          <div>
+            <label>Category *</label>
+            <select id="category" required>
+              <option value="">Loading categories...</option>
+            </select>
+          </div>
+          <div>
+            <label>Resolution *</label>
+            <select id="resolution" required>
+              <option value="HD">HD</option>
+              <option value="FHD">FHD (1080p)</option>
+              <option value="2K">2K</option>
+              <option value="4K" selected>4K</option>
+              <option value="8K">8K</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Tags (comma separated)</label>
+        <input
+          type="text"
+          id="tags"
+          placeholder="e.g., nature, landscape, colorful"
+        />
+
+        <div class="form-row">
+          <div>
+            <label>Likes (optional)</label>
+            <input type="number" id="likes" value="0" min="0" />
+          </div>
+          <div>
+            <label>Downloads (optional)</label>
+            <input type="number" id="downloads" value="0" min="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Message -->
+      <div id="status"></div>
+
+      <!-- Upload Button -->
+      <button class="btn btn-primary" id="upload-btn" disabled>
+        <i class="fas fa-upload"></i> Upload Wallpaper
+      </button>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:3000/api";
+      let selectedFile = null;
+      let existingCategories = [];
+
+      // Elements
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const previewContainer = document.getElementById("preview-container");
+      const previewImg = document.getElementById("preview-img");
+      const uploadBtn = document.getElementById("upload-btn");
+      const status = document.getElementById("status");
+      const categorySelect = document.getElementById("category");
+
+      // Load existing categories from API
+      async function loadCategories() {
+        try {
+          const response = await fetch(`${API_URL}/categories`);
+          if (!response.ok) throw new Error("Failed to fetch categories");
+
+          existingCategories = await response.json();
+
+          categorySelect.innerHTML =
+            '<option value="">Select category</option>';
+          existingCategories.forEach((cat) => {
+            const option = document.createElement("option");
+            option.value = cat;
+            option.textContent = cat;
+            categorySelect.appendChild(option);
+          });
+
+          // Add "Add New" option
+          const newOption = document.createElement("option");
+          newOption.value = "__new__";
+          newOption.textContent = "+ Add New Category";
+          categorySelect.appendChild(newOption);
+        } catch (error) {
+          console.error("Failed to load categories:", error);
+          categorySelect.innerHTML =
+            '<option value="">Error loading categories</option>';
+        }
+      }
+
+      // Initialize - load saved credentials from localStorage
+      const savedToken = localStorage.getItem("github_token");
+      const savedRepo = localStorage.getItem("github_repo");
+      if (savedToken)
+        document.getElementById("github-token").value = savedToken;
+      if (savedRepo) document.getElementById("github-repo").value = savedRepo;
+
+      loadCategories();
+
+      // Save credentials to localStorage when changed
+      document.getElementById("github-token").onchange = (e) => {
+        localStorage.setItem("github_token", e.target.value);
+      };
+      document.getElementById("github-repo").onchange = (e) => {
+        localStorage.setItem("github_repo", e.target.value);
+      };
+
+      // Handle new category input
+      categorySelect.onchange = (e) => {
+        if (e.target.value === "__new__") {
+          const newCategory = prompt("Enter new category name:");
+          if (newCategory && newCategory.trim()) {
+            const option = document.createElement("option");
+            option.value = newCategory.trim();
+            option.textContent = newCategory.trim();
+            categorySelect.insertBefore(option, categorySelect.lastChild);
+            categorySelect.value = newCategory.trim();
+          } else {
+            categorySelect.value = "";
+          }
+        }
+      };
+
+      // Drag & Drop handlers
+      dropZone.onclick = () => fileInput.click();
+
+      dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add("drag-over");
+      };
+
+      dropZone.ondragleave = () => {
+        dropZone.classList.remove("drag-over");
+      };
+
+      dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      };
+
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        handleFile(file);
+      };
+
+      function handleFile(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          showStatus("Please select an image file", "error");
+          return;
+        }
+
+        selectedFile = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          previewImg.src = reader.result;
+          previewContainer.style.display = "block";
+          uploadBtn.disabled = false;
+        };
+      }
+
+      // Upload workflow
+      uploadBtn.onclick = async () => {
+        const githubToken = document.getElementById("github-token").value;
+        const githubRepo = document.getElementById("github-repo").value;
+        const title = document.getElementById("title").value;
+        const category = document.getElementById("category").value;
+        const resolution = document.getElementById("resolution").value;
+        const tagsInput = document.getElementById("tags").value;
+        const likes = parseInt(document.getElementById("likes").value) || 0;
+        const downloads =
+          parseInt(document.getElementById("downloads").value) || 0;
+
+        // Validation
+        if (!githubToken || !githubRepo) {
+          showStatus("Please configure GitHub settings", "error");
+          return;
+        }
+
+        if (!title || !category || category === "__new__") {
+          showStatus("Please fill in required fields", "error");
+          return;
+        }
+
+        if (!selectedFile) {
+          showStatus("Please select an image", "error");
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        showStatus("Uploading image to GitHub...", "info");
+
+        try {
+          // Step 1: Upload to GitHub
+          const githubUrl = await uploadToGitHub(
+            selectedFile,
+            githubToken,
+            githubRepo
+          );
+
+          showStatus("Saving to database...", "info");
+
+          // Step 2: Save to MongoDB via API
+          const tags = tagsInput
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t);
+          const wallpaperData = {
+            id: generateId(),
+            title,
+            filename: githubUrl,
+            category,
+            tags,
+            resolution,
+            likes,
+            downloads,
+          };
+
+          const response = await fetch(`${API_URL}/wallpapers`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(wallpaperData),
+          });
+
+          if (response.ok) {
+            showStatus("✅ Wallpaper uploaded successfully!", "success");
+            resetForm();
+            loadCategories(); // Refresh categories
+          } else {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save to database");
+          }
+        } catch (error) {
+          showStatus("❌ Upload failed: " + error.message, "error");
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      };
+
+      async function uploadToGitHub(file, token, repo) {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+          reader.readAsDataURL(file);
+          reader.onload = async () => {
+            const content = reader.result.split(",")[1];
+            const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+            const apiUrl = `https://api.github.com/repos/${repo}/contents/${fileName}`;
+
+            try {
+              const response = await fetch(apiUrl, {
+                method: "PUT",
+                headers: {
+                  Authorization: `token ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  message: `Upload ${fileName}`,
+                  content: content,
+                }),
+              });
+
+              if (response.ok) {
+                const rawLink = `https://raw.githubusercontent.com/${repo}/main/${fileName}`;
+                resolve(rawLink);
+              } else {
+                const err = await response.json();
+                reject(new Error(err.message || "GitHub upload failed"));
+              }
+            } catch (error) {
+              reject(error);
+            }
+          };
+        });
+      }
+
+      function generateId() {
+        return (
+          "wp-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9)
+        );
+      }
+
+      function showStatus(message, type) {
+        status.textContent = message;
+        status.className = type;
+        status.style.display = "block";
+
+        if (type === "success") {
+          setTimeout(() => {
+            status.style.display = "none";
+          }, 5000);
+        }
+      }
+
+      function resetForm() {
+        selectedFile = null;
+        fileInput.value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("category").value = "";
+        document.getElementById("tags").value = "";
+        document.getElementById("likes").value = "0";
+        document.getElementById("downloads").value = "0";
+        previewContainer.style.display = "none";
+        uploadBtn.disabled = true;
+      }
+    </script>
+  </body>
+</html>

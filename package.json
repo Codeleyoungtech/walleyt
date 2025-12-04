@@ -2,13 +2,17 @@
   "name": "walleyt",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
+    "server": "node server/index.js",
+    "server:watch": "nodemon server/index.js",
+    "dev:full": "concurrently \"npm run server:watch\" \"npm run dev\"",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
     "vite": "^5.0.0"
   }
 }
