@@ -36,9 +36,10 @@ module.exports = async (req, res) => {
       /^https?:\/\//,
       ""
     )}&q=80`;
-    const pageUrl = `${req.protocol}://${req.get(
-      "host"
-    )}?wallpaper=${wallpaperId}`;
+
+    // Frontend URL for redirect (use env variable or default to localhost:5173)
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const pageUrl = `${frontendUrl}?wallpaper=${wallpaperId}`;
 
     // Serve HTML with proper Open Graph tags
     const html = `<!DOCTYPE html>
@@ -71,8 +72,8 @@ module.exports = async (req, res) => {
     } wallpaper in ${wallpaper.resolution || "HD"} quality">
     <meta name="twitter:image" content="${compressedImage}">
     
-    <!-- Auto-redirect to app -->
-    <meta http-equiv="refresh" content="0;url=/?wallpaper=${wallpaperId}">
+    <!-- Auto-redirect to frontend app -->
+    <meta http-equiv="refresh" content="0;url=${pageUrl}">
     
     <style>
       body {
@@ -122,9 +123,9 @@ module.exports = async (req, res) => {
       <p>Opening Walleyt...</p>
     </div>
     <script>
-      // Redirect immediately
+      // Redirect immediately to frontend
       setTimeout(() => {
-        window.location.href = '/?wallpaper=${wallpaperId}';
+        window.location.href = '${pageUrl}';
       }, 100);
     </script>
   </body>
