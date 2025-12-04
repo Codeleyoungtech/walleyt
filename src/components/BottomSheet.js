@@ -24,9 +24,7 @@ export function BottomSheet() {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(180deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.98) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--surface);
     border-radius: 28px 28px 0 0;
     padding: 0;
     transform: translateY(100%);
@@ -34,8 +32,8 @@ export function BottomSheet() {
     z-index: 10000;
     max-height: 85vh;
     overflow: hidden;
-    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1) inset;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
   `;
 
   // Drag handle
@@ -136,6 +134,7 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
   `;
 
   const thumbnailUrl = getThumbnail(wallpaper.filename);
+  const shareUrl = getShareableURL(wallpaper.id);
 
   content.innerHTML = `
     <!-- Hero Wallpaper Preview -->
@@ -196,6 +195,162 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
       </div>
     </div>
 
+    <!-- Share via Social Platforms -->
+    <div style="padding: 0 20px 24px;">
+      <h3 style="
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      ">Share via</h3>
+      <div style="
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      " class="social-scroll">
+        <style>
+          .social-scroll::-webkit-scrollbar {
+            display: none;
+          }
+        </style>
+        
+        <!-- WhatsApp -->
+        <div class="social-icon" data-platform="whatsapp" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">WhatsApp</span>
+        </div>
+
+        <!-- Twitter -->
+        <div class="social-icon" data-platform="twitter" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1DA1F2 0%, #0e71c8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-twitter"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Twitter</span>
+        </div>
+
+        <!-- Facebook -->
+        <div class="social-icon" data-platform="facebook" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1877F2 0%, #0c5bc6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-facebook-f"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Facebook</span>
+        </div>
+
+        <!-- Telegram -->
+        <div class="social-icon" data-platform="telegram" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-telegram-plane"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Telegram</span>
+        </div>
+
+        <!-- Copy Link -->
+        <div class="social-icon" data-platform="copy" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div class="copy-icon-circle" style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+          ">
+            <i class="fas fa-link copy-icon"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Copy Link</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Actions -->
     <div style="padding: 0 20px;">
       <div class="action-list" style="display: grid; gap: 12px;">
@@ -236,15 +391,15 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
         <button class="sheet-action" data-action="walle" style="
           width: 100%;
           padding: 16px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--surface-light);
+          border: 1px solid var(--border);
           border-radius: 16px;
           display: flex;
           align-items: center;
           gap: 16px;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          color: white;
+          color: var(--text);
         ">
           <div style="
             width: 48px;
@@ -265,50 +420,18 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
           </div>
         </button>
 
-        <button class="sheet-action" data-action="share" style="
-          width: 100%;
-          padding: 16px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          color: white;
-        ">
-          <div style="
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-          ">
-            <i class="fas fa-share-alt"></i>
-          </div>
-          <div style="text-align: left; flex: 1;">
-            <div style="font-weight: 600; margin-bottom: 2px;">Share Wallpaper</div>
-            <div style="font-size: 0.8125rem; opacity: 0.6;">Send to friends with preview</div>
-          </div>
-        </button>
-
         <button class="sheet-action" data-action="info" style="
           width: 100%;
           padding: 16px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--surface-light);
+          border: 1px solid var(--border);
           border-radius: 16px;
           display: flex;
           align-items: center;
           gap: 16px;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          color: white;
+          color: var(--text);
         ">
           <div style="
             width: 48px;
@@ -334,6 +457,68 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
 
   sheet.appendChild(content);
 
+  // Social platform click handlers
+  content.querySelectorAll(".social-icon").forEach((icon) => {
+    const circle = icon.querySelector("div");
+
+    icon.onmouseenter = () => {
+      circle.style.transform = "scale(1.1)";
+    };
+    icon.onmouseleave = () => {
+      circle.style.transform = "scale(1)";
+    };
+
+    icon.onclick = () => {
+      const platform = icon.dataset.platform;
+      const text = `Check out this ${wallpaper.category} wallpaper: ${wallpaper.title}`;
+
+      if (platform === "whatsapp") {
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(text + " " + shareUrl)}`,
+          "_blank"
+        );
+      } else if (platform === "twitter") {
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            text
+          )}&url=${encodeURIComponent(shareUrl)}`,
+          "_blank"
+        );
+      } else if (platform === "facebook") {
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            shareUrl
+          )}`,
+          "_blank"
+        );
+      } else if (platform === "telegram") {
+        window.open(
+          `https://t.me/share/url?url=${encodeURIComponent(
+            shareUrl
+          )}&text=${encodeURIComponent(text)}`,
+          "_blank"
+        );
+      } else if (platform === "copy") {
+        // Copy link with checkmark feedback
+        navigator.clipboard.writeText(shareUrl);
+        const copyIcon = icon.querySelector(".copy-icon");
+        const copyCircle = icon.querySelector(".copy-icon-circle");
+
+        // Change to checkmark
+        copyIcon.className = "fas fa-check copy-icon";
+        copyCircle.style.background =
+          "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+          copyIcon.className = "fas fa-link copy-icon";
+          copyCircle.style.background =
+            "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)";
+        }, 2000);
+      }
+    };
+  });
+
   // Action handlers with enhanced effects
   content.querySelectorAll(".sheet-action").forEach((btn) => {
     btn.onmouseenter = () => {
@@ -341,8 +526,7 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
       if (btn.dataset.action === "download") {
         btn.style.boxShadow = "0 8px 24px rgba(99, 102, 241, 0.6)";
       } else {
-        btn.style.background = "rgba(255, 255, 255, 0.08)";
-        btn.style.borderColor = "rgba(255, 255, 255, 0.15)";
+        btn.style.background = "var(--surface-hover)";
       }
     };
     btn.onmouseleave = () => {
@@ -350,8 +534,7 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
       if (btn.dataset.action === "download") {
         btn.style.boxShadow = "0 4px 16px rgba(99, 102, 241, 0.4)";
       } else {
-        btn.style.background = "rgba(255, 255, 255, 0.05)";
-        btn.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        btn.style.background = "var(--surface-light)";
       }
     };
 
