@@ -25,15 +25,35 @@ export function Collections() {
   grid.appendChild(specialCollection);
 
   // Standard Categories
-  const categories = [...new Set(state.wallpapers.map((w) => w.category))];
+  // Normalize categories to Title Case to merge duplicates (e.g. "nature" & "Nature")
+  const toTitleCase = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  const uniqueCategories = new Set();
+  state.wallpapers.forEach((w) => {
+    if (w.category) {
+      uniqueCategories.add(toTitleCase(w.category));
+    }
+  });
+
+  const categories = [...uniqueCategories].sort();
 
   categories.forEach((cat) => {
-    // Find a cover image for the category - use compressed thumbnail
-    const coverWallpaper = state.wallpapers.find((w) => w.category === cat);
+    // Find a cover image for the category
+    // Case-insensitive matching for cover image
+    const coverWallpaper = state.wallpapers.find(
+      (w) => w.category.toLowerCase() === cat.toLowerCase()
+    );
+    // Count wallpapers in this category (case-insensitive)
+    const count = state.wallpapers.filter(
+      (w) => w.category.toLowerCase() === cat.toLowerCase()
+    ).length;
+
     const cover = coverWallpaper ? getThumbnail(coverWallpaper.filename) : null;
     const card = createCollectionCard(
       cat,
-      `${state.wallpapers.filter((w) => w.category === cat).length} Wallpapers`,
+      `${count} Wallpapers`,
       null,
       null,
       cover

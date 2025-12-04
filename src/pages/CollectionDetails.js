@@ -1,4 +1,5 @@
 import { state } from "../state.js";
+import { router } from "../router.js";
 import { WallpaperCard } from "../components/WallpaperCard.js";
 import { PageHeader } from "../components/PageHeader.js";
 

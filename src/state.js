@@ -131,13 +131,27 @@ export const state = {
     let filtered = this.wallpapers;
 
     // Filter by category
+    // Filter by category
     if (this.currentCategory && this.currentCategory !== "All") {
       if (this.currentCategory === "Eleazar's Picks") {
-        filtered = filtered.filter(
+        // Try to find featured wallpapers
+        const picks = filtered.filter(
           (w) => w.tags && w.tags.includes("featured")
         );
+
+        // If no featured wallpapers found, fallback to Top 10 Most Liked
+        if (picks.length === 0) {
+          filtered = [...filtered]
+            .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+            .slice(0, 10);
+        } else {
+          filtered = picks;
+        }
       } else {
-        filtered = filtered.filter((w) => w.category === this.currentCategory);
+        // Case-insensitive category matching
+        filtered = filtered.filter(
+          (w) => w.category.toLowerCase() === this.currentCategory.toLowerCase()
+        );
       }
     }
 
@@ -158,7 +172,13 @@ export const state = {
   getCategories() {
     const categories = ["All", "Eleazar's Picks"];
     const uniqueCategories = [
-      ...new Set(this.wallpapers.map((w) => w.category)),
+      ...new Set(
+        this.wallpapers.map(
+          (w) =>
+            w.category.charAt(0).toUpperCase() +
+            w.category.slice(1).toLowerCase()
+        )
+      ),
     ];
     return categories.concat(uniqueCategories);
   },

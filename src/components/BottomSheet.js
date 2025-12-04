@@ -2,7 +2,7 @@
 // Beautiful slide-up modal with improved design and share functionality
 
 import { getShareableURL } from "../utils/metaTags.js";
-import { getThumbnail } from "../utils/imageOptimization.js";
+import { getThumbnail, getPreviewImage } from "../utils/imageOptimization.js";
 
 export function BottomSheet() {
   const overlay = document.createElement("div");
@@ -133,7 +133,8 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
     max-height: calc(85vh - 48px);
   `;
 
-  const thumbnailUrl = getThumbnail(wallpaper.filename);
+  // Use preview image (1200px) for hero section
+  const thumbnailUrl = getPreviewImage(wallpaper.filename);
   const shareUrl = getShareableURL(wallpaper.id);
 
   content.innerHTML = `

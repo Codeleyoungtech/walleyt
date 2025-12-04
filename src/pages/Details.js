@@ -2,7 +2,11 @@ import { state } from "../state.js";
 import { router } from "../router.js";
 import { Toast } from "../components/Toast.js";
 import { RadialMenu } from "../components/RadialMenu.js";
-import { getThumbnail, getOriginalImage } from "../utils/imageOptimization.js";
+import {
+  getThumbnail,
+  getOriginalImage,
+  getPreviewImage,
+} from "../utils/imageOptimization.js";
 import { updateWallpaperMeta, getShareableURL } from "../utils/metaTags.js";
 
 export function Details({ id }) {
@@ -19,7 +23,8 @@ export function Details({ id }) {
   updateWallpaperMeta(wallpaper);
 
   const isWalle = state.walle.has(id);
-  const thumbnailUrl = getThumbnail(wallpaper.filename);
+  // Use preview image (1200px) for details page instead of small thumbnail
+  const thumbnailUrl = getPreviewImage(wallpaper.filename);
 
   // Header Image
   const header = document.createElement("div");
@@ -152,7 +157,13 @@ export function Details({ id }) {
     }</h1>
     
     <div class="detail-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
-      ${(wallpaper.tags || [])
+      ${[
+        ...new Set(
+          (wallpaper.tags || []).map(
+            (t) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+          )
+        ),
+      ]
         .map(
           (tag) =>
             `<span class="tag" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; font-size: 0.8125rem; color: var(-text-secondary);">#${tag}</span>`

@@ -20,10 +20,29 @@ export function getCompressedImage(imageUrl, quality = 70) {
 }
 
 /**
- * Get thumbnail version (compressed for cards/previews)
+ * Get thumbnail version (compressed for cards)
+ * Uses WebP + High Compression (No Resize)
  */
 export function getThumbnail(imageUrl) {
-  return getCompressedImage(imageUrl, 70); // 70% quality for fast loading
+  if (!imageUrl) return "";
+  const urlWithoutProtocol = imageUrl.replace(/^https?:\/\//, "");
+  // output=webp: Use modern WebP format (smaller size)
+  // q=60: Aggressive compression for thumbnails
+  // il: Interlaced (progressive loading)
+  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=60&il`;
+}
+
+/**
+ * Get preview version (for details page and bottom sheet)
+ * Uses WebP + Medium Compression (No Resize)
+ */
+export function getPreviewImage(imageUrl) {
+  if (!imageUrl) return "";
+  const urlWithoutProtocol = imageUrl.replace(/^https?:\/\//, "");
+  // output=webp: Use modern WebP format
+  // q=75: Good quality for previews
+  // il: Interlaced
+  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=75&il`;
 }
 
 /**
