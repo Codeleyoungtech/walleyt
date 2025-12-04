@@ -5,7 +5,8 @@ const Wallpaper = require("../models/Wallpaper");
 
 module.exports = async (req, res) => {
   try {
-    const wallpaperId = req.query.wallpaper;
+    // Support both /share/:id and /?wallpaper=id
+    const wallpaperId = req.params.id || req.query.wallpaper;
 
     if (!wallpaperId) {
       // No wallpaper ID - serve default preview
@@ -25,7 +26,8 @@ module.exports = async (req, res) => {
     }
 
     // Fetch wallpaper from database
-    const wallpaper = await Wallpaper.findById(wallpaperId);
+    // Use findOne with custom 'id' field, not findById (which expects ObjectId)
+    const wallpaper = await Wallpaper.findOne({ id: wallpaperId });
 
     if (!wallpaper) {
       return res.status(404).send("Wallpaper not found");
@@ -37,9 +39,17 @@ module.exports = async (req, res) => {
       ""
     )}&q=80`;
 
-    // Frontend URL for redirect (use env variable or default to localhost:5173)
+    // Frontend URL for redirect
+    // If running locally, assume default Vite port. In production, use env var.
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const pageUrl = `${frontendUrl}?wallpaper=${wallpaperId}`;
+
+    // Construct the deep link to the details page
+    // The router uses hash mode or history mode. Based on previous edits, it seems to handle both.
+    // We'll target the details route directly.
+    // If using hash routing: /#details?id=123 (or however router handles it)
+    // Based on router.js, it checks URL params in init().
+    // Let's stick to the query param approach that router.js supports: /?wallpaper=ID
+    const targetUrl = `${frontendUrl}/?wallpaper=${wallpaperId}`;
 
     // Serve HTML with proper Open Graph tags
     const html = `<!DOCTYPE html>
@@ -51,82 +61,59 @@ module.exports = async (req, res) => {
     
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="${pageUrl}">
+    <meta property="og:url" content="${targetUrl}">
     <meta property="og:title" content="${wallpaper.title} - Walleyt">
     <meta property="og:description" content="${
       wallpaper.category
-    } wallpaper in ${
-      wallpaper.resolution || "HD"
-    } quality. Download premium wallpapers for your device.">
+    } wallpaper in ${wallpaper.resolution || "HD"} quality.">
     <meta property="og:image" content="${compressedImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/jpeg">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="${pageUrl}">
+    <meta name="twitter:url" content="${targetUrl}">
     <meta name="twitter:title" content="${wallpaper.title} - Walleyt">
-    <meta name="twitter:description" content="${
-      wallpaper.category
-    } wallpaper in ${wallpaper.resolution || "HD"} quality">
+    <meta name="twitter:description" content="${wallpaper.category} wallpaper">
     <meta name="twitter:image" content="${compressedImage}">
     
     <!-- Auto-redirect to frontend app -->
-    <meta http-equiv="refresh" content="0;url=${pageUrl}">
+    <meta http-equiv="refresh" content="0;url=${targetUrl}">
     
     <style>
       body {
         font-family: system-ui, -apple-system, sans-serif;
+        background: #0f172a;
+        color: white;
+        height: 100vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
         margin: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
       }
-      .container {
-        text-align: center;
-        padding: 2rem;
-      }
-      .preview-image {
-        max-width: 300px;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        margin-bottom: 1.5rem;
-      }
-      .spinner {
-        border: 3px solid rgba(255,255,255,0.2);
-        border-top-color: white;
+      .loader {
+        width: 48px;
+        height: 48px;
+        border: 5px solid #FFF;
+        border-bottom-color: #6366f1;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 1rem auto;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        margin-bottom: 20px;
       }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
+      @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
-      h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
-      p { opacity: 0.9; margin: 0.5rem 0; }
     </style>
   </head>
   <body>
-    <div class="container">
-      <img src="${compressedImage}" alt="${
-      wallpaper.title
-    }" class="preview-image">
-      <h1>${wallpaper.title}</h1>
-      <p>${wallpaper.category} • ${wallpaper.resolution || "HD"}</p>
-      <div class="spinner"></div>
-      <p>Opening Walleyt...</p>
-    </div>
+    <span class="loader"></span>
+    <p>Redirecting to Walleyt...</p>
     <script>
-      // Redirect immediately to frontend
-      setTimeout(() => {
-        window.location.href = '${pageUrl}';
-      }, 100);
+      window.location.href = '${targetUrl}';
     </script>
   </body>
 </html>`;

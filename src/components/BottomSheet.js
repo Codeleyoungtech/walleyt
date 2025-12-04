@@ -245,8 +245,8 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
           <span style="font-size: 0.75rem; color: var(--text-secondary);">WhatsApp</span>
         </div>
 
-        <!-- Twitter -->
-        <div class="social-icon" data-platform="twitter" style="
+        <!-- Instagram -->
+        <div class="social-icon" data-platform="instagram" style="
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -258,7 +258,7 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1DA1F2 0%, #0e71c8 100%);
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -266,9 +266,61 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
             font-size: 1.5rem;
             transition: transform 0.2s;
           ">
-            <i class="fab fa-twitter"></i>
+            <i class="fab fa-instagram"></i>
           </div>
-          <span style="font-size: 0.75rem; color: var(--text-secondary);">Twitter</span>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Instagram</span>
+        </div>
+
+        <!-- Messenger -->
+        <div class="social-icon" data-platform="messenger" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00B2FF 0%, #006AFF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-facebook-messenger"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Messenger</span>
+        </div>
+
+        <!-- X (Twitter) -->
+        <div class="social-icon" data-platform="x" style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          flex-shrink: 0;
+        ">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+          ">
+            <i class="fab fa-x-twitter"></i>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">X</span>
         </div>
 
         <!-- Facebook -->
@@ -455,6 +507,79 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
     </div>
   `;
 
+  content.querySelectorAll(".social-icon").forEach((icon) => {
+    const circle = icon.querySelector("div");
+
+    icon.onmouseenter = () => {
+      circle.style.transform = "scale(1)";
+    };
+    icon.onmouseleave = () => {
+      circle.style.transform = "scale(1)";
+    };
+
+    icon.onclick = () => {
+      const platform = icon.dataset.platform;
+      const shareUrl = getShareableURL(wallpaper.id);
+      const text = `Check out this ${wallpaper.category} wallpaper: ${wallpaper.title}`;
+
+      if (platform === "whatsapp") {
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(text + " " + shareUrl)}`,
+          "_blank"
+        );
+      } else if (platform === "twitter" || platform === "x") {
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            text
+          )}&url=${encodeURIComponent(shareUrl)}`,
+          "_blank"
+        );
+      } else if (platform === "facebook") {
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            shareUrl
+          )}`,
+          "_blank"
+        );
+      } else if (platform === "messenger") {
+        window.open(
+          `fb-messenger://share/?link=${encodeURIComponent(shareUrl)}`,
+          "_blank"
+        );
+      } else if (platform === "instagram") {
+        navigator.clipboard.writeText(shareUrl);
+        const iIcon = icon.querySelector("i");
+        const originalClass = iIcon.className;
+        iIcon.className = "fas fa-check";
+        setTimeout(() => {
+          iIcon.className = originalClass;
+        }, 2000);
+        alert("Link copied! Open Instagram to share.");
+      } else if (platform === "telegram") {
+        window.open(
+          `https://t.me/share/url?url=${encodeURIComponent(
+            shareUrl
+          )}&text=${encodeURIComponent(text)}`,
+          "_blank"
+        );
+      } else if (platform === "copy") {
+        navigator.clipboard.writeText(shareUrl);
+        const copyIcon = icon.querySelector(".copy-icon");
+        const copyCircle = icon.querySelector(".copy-icon-circle");
+
+        copyIcon.className = "fas fa-check copy-icon";
+        copyCircle.style.background =
+          "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+
+        setTimeout(() => {
+          copyIcon.className = "fas fa-link copy-icon";
+          copyCircle.style.background =
+            "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)";
+        }, 2000);
+      }
+    };
+  });
+
   content.querySelectorAll(".sheet-action").forEach((btn) => {
     btn.onmouseenter = () => {
       btn.style.transform = "translateY(-2px) scale(1.02)";
@@ -481,6 +606,8 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
       close();
     };
   });
+
+  sheet.appendChild(content);
 
   document.body.appendChild(overlay);
   return { close };

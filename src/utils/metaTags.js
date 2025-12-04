@@ -57,7 +57,15 @@ export function resetMetaTags() {
   });
 }
 
-// Simple function - just returns what's passed (image URL)
-export function getShareableURL(imageUrl) {
-  return imageUrl;
+/**
+ * Get shareable URL for a wallpaper
+ * Returns backend URL that serves OG tags and redirects to app
+ */
+export function getShareableURL(wallpaperId) {
+  // Use backend URL for social media previews
+  // Example: https://api.walleyt.com/share/123
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  // Remove trailing slash if present
+  const cleanApiUrl = apiUrl.replace(/\/$/, "");
+  return `${cleanApiUrl}/share/${wallpaperId}`;
 }

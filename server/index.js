@@ -17,7 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Preview route (MUST be before other routes to catch ?wallpaper= URLs)
+// Preview/Share route (Pinterest-style /share/:id)
+app.get("/share/:id", previewRoute);
+
+// Keep root preview for backward compatibility or direct query params
 app.get("/", previewRoute);
 
 // API Routes
