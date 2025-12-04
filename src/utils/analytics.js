@@ -1,7 +1,9 @@
 // Lightweight analytics utility
 // Session-based tracking, minimal database writes
 
-const API_URL = "http://localhost:3000/api/analytics";
+import { config } from "../config.js";
+
+const API_URL = config.endpoints.analytics;
 
 class Analytics {
   constructor() {

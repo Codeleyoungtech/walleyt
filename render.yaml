@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: walleyt-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 3000
+    healthCheckPath: /api/health

@@ -1,4 +1,5 @@
 import { analytics } from "./utils/analytics.js";
+import { config } from "./config.js";
 
 export const state = {
   wallpapers: [],
@@ -14,7 +15,7 @@ export const state = {
   async init() {
     // Fetch wallpapers from API
     try {
-      const response = await fetch("http://localhost:3000/api/wallpapers");
+      const response = await fetch(config.endpoints.wallpapers);
       if (!response.ok) {
         throw new Error("Failed to fetch wallpapers");
       }
