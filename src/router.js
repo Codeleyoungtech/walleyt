@@ -24,6 +24,12 @@ export const router = {
     if (this.routes[route]) {
       this.currentRoute = route;
 
+      // Update browser URL using History API
+      const url = new URL(window.location);
+      url.search = ""; // Clear query params when navigating in app
+      url.hash = `#${route}`; // Use hash for SPA routing
+      window.history.pushState({ route, params }, "", url);
+
       // Clear container
       this.appContainer.innerHTML = "";
 
@@ -58,3 +64,21 @@ export const router = {
     }
   },
 };
+
+// Handle browser back/forward buttons
+window.addEventListener("popstate", (event) => {
+  if (event.state && event.state.route) {
+    // Navigate without adding to history (already in history)
+    const route = event.state.route;
+    const params = event.state.params || {};
+
+    // Clear container
+    router.appContainer.innerHTML = "";
+
+    // Render page
+    const pageContent = router.routes[route](params);
+    router.appContainer.appendChild(pageContent);
+    pageContent.classList.add("page-transition");
+    window.scrollTo(0, 0);
+  }
+});
