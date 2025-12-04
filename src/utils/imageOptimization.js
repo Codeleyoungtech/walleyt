@@ -28,8 +28,9 @@ export function getThumbnail(imageUrl) {
   const urlWithoutProtocol = imageUrl.replace(/^https?:\/\//, "");
   // output=webp: Use modern WebP format (smaller size)
   // q=60: Aggressive compression for thumbnails
+  // w=400: Resize to 400px width for grid view
   // il: Interlaced (progressive loading)
-  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=60&il`;
+  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=60&w=400&il`;
 }
 
 /**
@@ -41,8 +42,9 @@ export function getPreviewImage(imageUrl) {
   const urlWithoutProtocol = imageUrl.replace(/^https?:\/\//, "");
   // output=webp: Use modern WebP format
   // q=75: Good quality for previews
+  // w=1200: Resize to 1200px width for details view
   // il: Interlaced
-  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=75&il`;
+  return `${IMAGE_CDN}?url=${urlWithoutProtocol}&output=webp&q=75&w=1200&il`;
 }
 
 /**

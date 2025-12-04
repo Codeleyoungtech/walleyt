@@ -98,10 +98,14 @@ export function WallpaperCard(wallpaper) {
 
     showWallpaperActions(wallpaper, {
       download: async () => {
-        Toast.show("Starting download...", "info");
+        Toast.show("Downloading high-res image... ⏳", "info");
         try {
           const originalUrl = getOriginalImage(wallpaper.filename);
+
+          // Try to fetch blob for custom filename
           const response = await fetch(originalUrl);
+          if (!response.ok) throw new Error("Network response was not ok");
+
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -113,9 +117,18 @@ export function WallpaperCard(wallpaper) {
           window.URL.revokeObjectURL(url);
 
           state.addDownload(wallpaper.id);
-          Toast.show("Download started! 📥", "success");
+          Toast.show("Download complete! 📥", "success");
         } catch (error) {
-          Toast.show("Download failed", "error");
+          console.error("Download failed, trying direct link:", error);
+          // Fallback to direct link
+          const a = document.createElement("a");
+          a.href = getOriginalImage(wallpaper.filename);
+          a.download = `${wallpaper.title.replace(/\s+/g, "_")}.jpg`;
+          a.target = "_blank";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          Toast.show("Opened in new tab (save manually)", "info");
         }
       },
       walle: () => {

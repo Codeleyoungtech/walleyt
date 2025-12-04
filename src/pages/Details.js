@@ -235,11 +235,14 @@ export function Details({ id }) {
 }
 
 async function downloadWallpaper(wallpaper) {
-  Toast.show("Starting download...", "info");
+  Toast.show("Downloading high-res image... ⏳", "info");
   try {
     // Use original full-res image for download
     const originalUrl = getOriginalImage(wallpaper.filename);
+
     const response = await fetch(originalUrl);
+    if (!response.ok) throw new Error("Network response was not ok");
+
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -251,11 +254,23 @@ async function downloadWallpaper(wallpaper) {
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
+    document.body.removeChild(a); // Clean up
+
     state.addDownload(wallpaper.id);
-    Toast.show("Download complete!", "success");
+    Toast.show("Download complete! 📥", "success");
   } catch (err) {
-    console.error(err);
-    Toast.show("Download failed", "error");
+    console.error("Download failed, trying direct link:", err);
+    // Fallback
+    const a = document.createElement("a");
+    a.href = getOriginalImage(wallpaper.filename);
+    a.download = `walleyt-${wallpaper.title
+      .toLowerCase()
+      .replace(/\s+/g, "-")}.jpg`;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    Toast.show("Opened in new tab (save manually)", "info");
   }
 }
 
