@@ -7,8 +7,17 @@ export const router = {
     this.appContainer = document.getElementById(containerId);
     this.routes = routes;
 
-    // Handle initial route
-    this.navigate("home");
+    // Check for wallpaper URL parameter (from shared links)
+    const urlParams = new URLSearchParams(window.location.search);
+    const wallpaperId = urlParams.get("wallpaper");
+
+    if (wallpaperId) {
+      // Navigate to details page with the wallpaper ID
+      this.navigate("details", { id: wallpaperId });
+    } else {
+      // Handle initial route - go to home
+      this.navigate("home");
+    }
   },
 
   navigate(route, params = {}) {

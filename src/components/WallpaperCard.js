@@ -1,7 +1,9 @@
 import { router } from "../router.js";
 import { state } from "../state.js";
 import { Toast } from "./Toast.js";
-import { RadialMenu } from "./RadialMenu.js";
+import { getThumbnail, getOriginalImage } from "../utils/imageOptimization.js";
+import { showWallpaperActions } from "./BottomSheet.js";
+import { getShareableURL, updateWallpaperMeta } from "../utils/metaTags.js";
 
 export function WallpaperCard(wallpaper) {
   const card = document.createElement("div");
@@ -18,222 +20,146 @@ export function WallpaperCard(wallpaper) {
   `;
 
   const isWalle = state.walle.has(wallpaper.id);
+  const thumbnailUrl = getThumbnail(wallpaper.filename);
 
   card.innerHTML = `
     <div class="wallpaper-image" style="width: 100%; position: relative; overflow: hidden; border-radius: 12px;">
-      <img src="${wallpaper.filename}" alt="${
+      <img src="${thumbnailUrl}" alt="${
     wallpaper.title
   }" style="width: 100%; display: block; object-fit: cover;" loading="lazy">
       
-      <!-- Hover Overlay with all actions -->
-      <div class="wallpaper-overlay" style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 70%); opacity: 0; transition: opacity 0.3s; display: flex; flex-direction: column; justify-content: space-between; padding: 0.75rem;">
-        
-        <!-- Top actions: Add to Collection -->
-        <div style="display: flex; justify-content: flex-end;">
-          <button class="add-collection-btn" style="
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.875rem;
-          ">
-            <i class="fas fa-folder-plus"></i>
-          </button>
-        </div>
-        
-        <!-- Bottom info and actions -->
-        <div>
-          <div class="wallpaper-info" style="margin-bottom: 0.75rem;">
-            <div style="font-size: 0.875rem; font-weight: 600; color: white; margin-bottom: 0.25rem;">${
-              wallpaper.title
-            }</div>
-            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.8);">${
-              wallpaper.category
-            }</div>
-          </div>
-          
-          <!-- Action buttons row -->
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="walle-btn" style="
-              flex: 1;
-              padding: 0.5rem;
-              border-radius: 8px;
-              background: ${
-                isWalle ? "rgba(239, 68, 68, 0.3)" : "rgba(255,255,255,0.2)"
-              };
-              backdrop-filter: blur(10px);
-              border: 1px solid ${
-                isWalle ? "rgba(239, 68, 68, 0.5)" : "rgba(255,255,255,0.3)"
-              };
-              color: ${isWalle ? "#ef4444" : "white"};
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 0.375rem;
-              cursor: pointer;
-              transition: all 0.2s;
-              font-size: 0.8125rem;
-              font-weight: 500;
-            ">
-              <i class="fas fa-heart"></i>
-              <span>${isWalle ? "Walle" : "Walle"}</span>
-            </button>
-            
-            <button class="download-btn" style="
-              flex: 1;
-              padding: 0.5rem;
-              border-radius: 8px;
-              background: rgba(255,255,255,0.2);
-              backdrop-filter: blur(10px);
-              border: 1px solid rgba(255,255,255,0.3);
-              color: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 0.375rem;
-              cursor: pointer;
-              transition: all 0.2s;
-              font-size: 0.8125rem;
-              font-weight: 500;
-            ">
-              <i class="fas fa-download"></i>
-              <span>Download</span>
-            </button>
-          </div>
-        </div>
+      <!-- Three-dot menu button (always visible) -->
+      <button class="menu-btn" style="
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+      ">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      
+      <!-- Walle indicator (if favorited) -->
+      ${
+        isWalle
+          ? `
+      <div style="
+        position: absolute;
+        bottom: 0.5rem;
+        left: 0.5rem;
+        padding: 0.25rem 0.625rem;
+        background: rgba(239, 68, 68, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+      ">
+        <i class="fas fa-heart"></i>
+        Walle
       </div>
+      `
+          : ""
+      }
     </div>
   `;
 
   const imageContainer = card.querySelector(".wallpaper-image");
-  const overlay = card.querySelector(".wallpaper-overlay");
   const img = card.querySelector("img");
-  const walleBtn = card.querySelector(".walle-btn");
-  const downloadBtn = card.querySelector(".download-btn");
-  const addCollectionBtn = card.querySelector(".add-collection-btn");
+  const menuBtn = card.querySelector(".menu-btn");
 
-  // Hover effects
-  imageContainer.onmouseenter = () => {
-    overlay.style.opacity = "1";
-    img.style.transform = "scale(1.05)";
+  // Menu button hover effect
+  menuBtn.onmouseenter = () => {
+    menuBtn.style.transform = "scale(1.1)";
+    menuBtn.style.background = "rgba(0, 0, 0, 0.8)";
+  };
+  menuBtn.onmouseleave = () => {
+    menuBtn.style.transform = "scale(1)";
+    menuBtn.style.background = "rgba(0, 0, 0, 0.6)";
   };
 
-  imageContainer.onmouseleave = () => {
-    overlay.style.opacity = "0";
-    img.style.transform = "scale(1)";
-  };
-
-  // Walle button
-  walleBtn.onclick = (e) => {
+  // Menu button click - show bottom sheet
+  menuBtn.onclick = (e) => {
     e.stopPropagation();
-    const newStatus = state.toggleWalle(wallpaper.id);
 
-    // Update button styles
-    if (newStatus) {
-      walleBtn.style.background = "rgba(239, 68, 68, 0.3)";
-      walleBtn.style.borderColor = "rgba(239, 68, 68, 0.5)";
-      walleBtn.style.color = "#ef4444";
-    } else {
-      walleBtn.style.background = "rgba(255,255,255,0.2)";
-      walleBtn.style.borderColor = "rgba(255,255,255,0.3)";
-      walleBtn.style.color = "white";
-    }
+    showWallpaperActions(wallpaper, {
+      download: async () => {
+        Toast.show("Starting download...", "info");
+        try {
+          const originalUrl = getOriginalImage(wallpaper.filename);
+          const response = await fetch(originalUrl);
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${wallpaper.title.replace(/\s+/g, "_")}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
 
-    Toast.show(
-      newStatus ? "Added to Walle ❤️" : "Removed from Walle",
-      "success"
-    );
+          state.addDownload(wallpaper.id);
+          Toast.show("Download started! 📥", "success");
+        } catch (error) {
+          Toast.show("Download failed", "error");
+        }
+      },
+      walle: () => {
+        const newStatus = state.toggleWalle(wallpaper.id);
+        Toast.show(
+          newStatus ? "Added to Walle ❤️" : "Removed from Walle",
+          "success"
+        );
+        // Refresh card to update walle indicator
+        const newCard = WallpaperCard(wallpaper);
+        card.replaceWith(newCard);
+      },
+      share: () => {
+        // Update meta tags for this wallpaper
+        updateWallpaperMeta(wallpaper);
+
+        const shareUrl = getShareableURL(wallpaper.id);
+        const shareData = {
+          title: `${wallpaper.title} - Walleyt`,
+          text: `Check out this ${wallpaper.category} wallpaper in ${
+            wallpaper.resolution || "HD"
+          } quality!`,
+          url: shareUrl,
+        };
+
+        if (navigator.share) {
+          navigator.share(shareData).catch(console.error);
+        } else {
+          navigator.clipboard.writeText(shareUrl);
+          Toast.show("Link copied! Share it to see preview 🔗", "success");
+        }
+      },
+      info: () => {
+        router.navigate("details", { id: wallpaper.id });
+      },
+    });
   };
-
-  // Download button
-  downloadBtn.onclick = async (e) => {
-    e.stopPropagation();
-    Toast.show("Starting download...", "info");
-
-    try {
-      const response = await fetch(wallpaper.filename);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${wallpaper.title.replace(/\s+/g, "_")}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      state.addDownload(wallpaper.id);
-      Toast.show("Download started! 📥", "success");
-    } catch (error) {
-      Toast.show("Download failed", "error");
-    }
-  };
-
-  // Add to collection button
-  addCollectionBtn.onclick = (e) => {
-    e.stopPropagation();
-    Toast.show("Add to Collection feature coming soon!", "info");
-  };
-
-  // Button hover effects
-  [walleBtn, downloadBtn, addCollectionBtn].forEach((btn) => {
-    btn.onmouseenter = () => {
-      btn.style.transform = "scale(1.05)";
-    };
-    btn.onmouseleave = () => {
-      btn.style.transform = "scale(1)";
-    };
-  });
 
   // Navigate to details on image click
   imageContainer.onclick = (e) => {
-    // Don't navigate if clicking buttons
-    if (e.target.closest("button")) return;
+    // Don't navigate if clicking menu button
+    if (e.target.closest(".menu-btn")) return;
     router.navigate("details", { id: wallpaper.id });
   };
-
-  // Long press for radial menu
-  let pressTimer;
-  let longPressTriggered = false;
-
-  const startPress = (e) => {
-    longPressTriggered = false;
-    pressTimer = setTimeout(() => {
-      longPressTriggered = true;
-      e.preventDefault();
-      const menu = RadialMenu(
-        wallpaper,
-        e.pageX || e.touches[0].pageX,
-        e.pageY || e.touches[0].pageY
-      );
-      document.body.appendChild(menu);
-    }, 500);
-  };
-
-  const cancelPress = () => {
-    clearTimeout(pressTimer);
-  };
-
-  const handlePress = (e) => {
-    if (longPressTriggered) {
-      e.preventDefault();
-    }
-  };
-
-  imageContainer.addEventListener("mousedown", startPress);
-  imageContainer.addEventListener("mouseup", cancelPress);
-  imageContainer.addEventListener("mouseleave", cancelPress);
-  imageContainer.addEventListener("touchstart", startPress, { passive: false });
-  imageContainer.addEventListener("touchend", handlePress);
-  imageContainer.addEventListener("touchmove", cancelPress);
 
   return card;
 }

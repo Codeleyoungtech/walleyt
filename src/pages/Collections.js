@@ -1,6 +1,7 @@
 import { state } from "../state.js";
 import { router } from "../router.js";
 import { PageHeader } from "../components/PageHeader.js";
+import { getThumbnail } from "../utils/imageOptimization.js";
 
 export function Collections() {
   const container = document.createElement("div");
@@ -27,8 +28,9 @@ export function Collections() {
   const categories = [...new Set(state.wallpapers.map((w) => w.category))];
 
   categories.forEach((cat) => {
-    // Find a cover image for the category
-    const cover = state.wallpapers.find((w) => w.category === cat)?.filename;
+    // Find a cover image for the category - use compressed thumbnail
+    const coverWallpaper = state.wallpapers.find((w) => w.category === cat);
+    const cover = coverWallpaper ? getThumbnail(coverWallpaper.filename) : null;
     const card = createCollectionCard(
       cat,
       `${state.wallpapers.filter((w) => w.category === cat).length} Wallpapers`,

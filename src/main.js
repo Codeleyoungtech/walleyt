@@ -36,7 +36,7 @@ async function initApp() {
     // Initialize analytics
     await analytics.init();
 
-    // Initialize router with routes
+    // Initialize router with routes (router.init handles navigation including URL params)
     router.init("app", {
       home: Home,
       collections: Collections,
@@ -48,10 +48,6 @@ async function initApp() {
 
     // Initialize bottom navigation
     BottomNav.init();
-
-    // Navigate to home or saved route
-    const path = window.location.hash.slice(1) || "home";
-    router.navigate(path);
   } catch (error) {
     console.error("Failed to init app:", error);
     app.innerHTML =

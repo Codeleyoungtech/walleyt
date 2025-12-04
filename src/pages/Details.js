@@ -2,6 +2,8 @@ import { state } from "../state.js";
 import { router } from "../router.js";
 import { Toast } from "../components/Toast.js";
 import { RadialMenu } from "../components/RadialMenu.js";
+import { getThumbnail, getOriginalImage } from "../utils/imageOptimization.js";
+import { updateWallpaperMeta, getShareableURL } from "../utils/metaTags.js";
 
 export function Details({ id }) {
   const container = document.createElement("div");
@@ -13,7 +15,11 @@ export function Details({ id }) {
     return container;
   }
 
+  // Update meta tags for this wallpaper
+  updateWallpaperMeta(wallpaper);
+
   const isWalle = state.walle.has(id);
+  const thumbnailUrl = getThumbnail(wallpaper.filename);
 
   // Header Image
   const header = document.createElement("div");
@@ -29,25 +35,31 @@ export function Details({ id }) {
     <button class="share-btn" style="position: absolute; top: 1.25rem; right: 1.25rem; width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;">
       <i class="fas fa-share-alt"></i>
     </button>
-    <img src="${wallpaper.filename}" alt="${wallpaper.title}" class="detail-image" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="${thumbnailUrl}" alt="${wallpaper.title}" class="detail-image" style="width: 100%; height: 100%; object-fit: cover;">
   `;
 
   // Back button - navigate to home
   header.querySelector(".back-btn").onclick = () => router.navigate("home");
 
-  // Share button
+  // Share button - with proper URL and meta tags
   header.querySelector(".share-btn").onclick = () => {
+    // Update meta tags for this wallpaper
+    updateWallpaperMeta(wallpaper);
+
+    const shareUrl = getShareableURL(wallpaper.id);
+    const shareData = {
+      title: `${wallpaper.title} - Walleyt`,
+      text: `Check out this ${wallpaper.category} wallpaper in ${
+        wallpaper.resolution || "HD"
+      } quality!`,
+      url: shareUrl,
+    };
+
     if (navigator.share) {
-      navigator
-        .share({
-          title: wallpaper.title,
-          text: `Check out this wallpaper: ${wallpaper.title}`,
-          url: window.location.href,
-        })
-        .catch(console.error);
+      navigator.share(shareData).catch(console.error);
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      Toast.show("Link copied to clipboard", "success");
+      navigator.clipboard.writeText(shareUrl);
+      Toast.show("Link copied! Share it to see preview 🔗", "success");
     }
   };
 
@@ -214,7 +226,9 @@ export function Details({ id }) {
 async function downloadWallpaper(wallpaper) {
   Toast.show("Starting download...", "info");
   try {
-    const response = await fetch(wallpaper.filename);
+    // Use original full-res image for download
+    const originalUrl = getOriginalImage(wallpaper.filename);
+    const response = await fetch(originalUrl);
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
