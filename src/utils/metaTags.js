@@ -74,8 +74,11 @@ export function resetMetaTags() {
 }
 
 /**
- * Get shareable URL for a wallpaper
+ * Get shareable URL for a wallpaper (points to backend for OG preview)
  */
 export function getShareableURL(wallpaperId) {
-  return `${window.location.origin}${window.location.pathname}?wallpaper=${wallpaperId}`;
+  // Use backend URL for social media previews
+  // Backend serves HTML with proper OG tags, then redirects to app
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  return `${apiUrl}?wallpaper=${wallpaperId}`;
 }

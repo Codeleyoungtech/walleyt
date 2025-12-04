@@ -462,7 +462,7 @@ export function showWallpaperActions(wallpaper, callbacks = {}) {
     const circle = icon.querySelector("div");
 
     icon.onmouseenter = () => {
-      circle.style.transform = "scale(1.1)";
+      circle.style.transform = "scale(1)";
     };
     icon.onmouseleave = () => {
       circle.style.transform = "scale(1)";

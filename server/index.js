@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const wallpaperRoutes = require("./routes/wallpapers");
 const categoryRoutes = require("./routes/categories");
 const analyticsRoutes = require("./routes/analytics");
+const previewRoute = require("./routes/preview");
 
 const app = express();
 
@@ -16,7 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Preview route (MUST be before other routes to catch ?wallpaper= URLs)
+app.get("/", previewRoute);
+
+// API Routes
 app.use("/api/wallpapers", wallpaperRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/analytics", analyticsRoutes);
