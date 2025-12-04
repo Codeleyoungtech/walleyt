@@ -6,7 +6,7 @@ export const state = {
   downloads: new Set(),
   theme: "dark",
   profile: {
-    name: "Eleazar",
+    name: "Walley",
     bio: "Wallpaper Enthusiast",
   },
   subscribers: [],
@@ -19,7 +19,6 @@ export const state = {
         throw new Error("Failed to fetch wallpapers");
       }
       this.wallpapers = await response.json();
-      console.log(`✅ Loaded ${this.wallpapers.length} wallpapers from API`);
     } catch (error) {
       console.error("❌ Failed to load wallpapers from API:", error);
       // Fallback to static JSON if API fails
