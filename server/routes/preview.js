@@ -34,14 +34,16 @@ module.exports = async (req, res) => {
     }
 
     // Use compressed image for social preview
+    // Add dimensions to match OG tags
     const compressedImage = `https://images.weserv.nl/?url=${wallpaper.filename.replace(
       /^https?:\/\//,
       ""
-    )}&q=80`;
+    )}&w=1200&h=630&fit=cover&q=80`;
 
     // Frontend URL for redirect
-    // If running locally, assume default Vite port. In production, use env var.
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    // Default to production URL if env var is not set
+    const frontendUrl =
+      process.env.FRONTEND_URL || "https://walleyt.vercel.app";
 
     // Construct the deep link to the details page
     // The router uses hash mode or history mode. Based on previous edits, it seems to handle both.
